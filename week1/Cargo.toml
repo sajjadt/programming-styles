@@ -1,0 +1,7 @@
+[package]
+name = "week1"
+version = "0.1.0"
+authors = ["Sajjad Taheri <sajjadt@uci.edu>"]
+
+[dependencies]
+regex = "1"
