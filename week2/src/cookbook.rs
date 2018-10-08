@@ -37,7 +37,6 @@ fn read_input_file() {
      .expect("something went wrong reading the input file");
 }
 
-
 fn normalize() {
   // collect input words
   let mut input_contents = INPUT_CONTENTS.write().unwrap();
@@ -51,8 +50,8 @@ fn scan() {
   let input_contents = INPUT_CONTENTS.read().unwrap();
   let mut freq_table = FREQ_TABLE.write().unwrap(); 
   
-  for word in re.unwrap().find_iter(&*input_contents) {  // word is a &str
-    *freq_table.entry(word.as_str().to_string()).or_insert(0) += 1; // word does not live long enough
+  for word in re.unwrap().find_iter(&*input_contents) {
+    *freq_table.entry(word.as_str().to_string()).or_insert(0) += 1;
   }
 }
 
@@ -73,14 +72,13 @@ fn remove_stop_words() {
 fn sort() {
   let frequency = FREQ_TABLE.read().unwrap();
   let mut sorted_words = SORTED_WORDS.write().unwrap();
-  let mut vv = Vec::from_iter(&*frequency);
-  vv.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
-  vv.truncate(N as usize);
+  let mut _v = Vec::from_iter(&*frequency);
+  _v.sort_by(|&(_, a), &(_, b)| b.cmp(&a));
+  _v.truncate(N as usize);
   
-  for (word, count) in vv {
+  for (word, count) in _v {
     sorted_words.push( (word.to_string(), *count));
   }
-  
 }
 
 fn print_all() {
@@ -89,7 +87,6 @@ fn print_all() {
     println!("{}  -  {}", word, count);
   }
 }
-
 
 fn main() { 
   parse_input();
@@ -100,4 +97,3 @@ fn main() {
   sort();
   print_all();
 }
-
