@@ -7,52 +7,64 @@ use std::iter::FromIterator;
 
 extern crate regex;
 use regex::Regex;
+use std::process;
 
-const STOP_FILE_NAME : &'static str = "../stop_words.txt";
 const N: u32 = 25;
 
-fn parse_input() -> String {
+/// Parse User Comand line input (input file and stop words files)
+fn parse_input() -> (String, String) {
   let args: Vec<_> = env::args().collect();
-  args[1].to_string()
+  if args.len() != 3 {
+      print!("Usage: cargo run --bin pipeline [input_file] [stop_words_file]\n");
+      process::exit(0);
+  }
+  (args[1].to_string(), args[2].to_string())
 }
 
-fn read_file(in_file: String) -> String {
-  let mut fs = File::open(in_file).expect("input file not found");
+// Read both files
+fn read_files(in_files: (String, String)) -> (String, String) {
+  let mut fs = File::open(in_files.0).expect("input file not found");
   
   let mut input_contents : String =  String::new();
   fs.read_to_string(&mut input_contents)
      .expect("something went wrong reading the input file");
-  input_contents
-}
-
-fn normalize(mut data: String) -> String {
-  data.make_ascii_lowercase();
-  data
-}
-
-fn scan(data: String) -> HashMap<String, u32> {
-  let re = Regex::new(r"[a-z]{2}[a-z]*");
-  let mut frequency: HashMap<String, u32> = HashMap::new();
-  
-  for word in re.unwrap().find_iter(&data) {
-    *frequency.entry(word.as_str().to_string()).or_insert(0) += 1;
-  }
-  frequency
-}
-
-fn remove_stop_words(mut frequency: HashMap<String, u32>) -> HashMap<String, u32> {
     
-  let mut fs = File::open(STOP_FILE_NAME).expect("stop words file not found");
+  fs = File::open(in_files.1).expect("stop words file not found");
   let mut contents = String::new();
   fs.read_to_string(&mut contents)
       .expect("something went wrong reading the stop words file");
   
   contents.make_ascii_lowercase();
-  let v: HashSet<&str> = contents.split(',').collect();  
-  for word in v {
-    frequency.remove(word);
+     
+  (input_contents, contents)
+}
+
+/// Normalizes the input files by lowercasing them
+fn normalize(mut data: (String, String)) -> (String,String) {
+  data.0.make_ascii_lowercase();
+  data.1.make_ascii_lowercase();
+  data
+}
+
+/// Scan the input file
+/// Do not modifies stop words yet
+fn scan(data: (String,String)) -> (HashMap<String, u32>, String) {
+  let re = Regex::new(r"[a-z]{2}[a-z]*");
+  let mut frequency: HashMap<String, u32> = HashMap::new();
+  
+  for word in re.unwrap().find_iter(&data.0) {
+    *frequency.entry(word.as_str().to_string()).or_insert(0) += 1;
   }
-  frequency
+  (frequency, data.1)
+}
+
+/// Removes stop words from the input file histogram
+fn remove_stop_words(mut frequency: (HashMap<String, u32>, String)) -> HashMap<String, u32> {
+  let v: HashSet<&str> = frequency.1.split(',').collect();  
+  for word in v {
+    frequency.0.remove(word);
+  }
+  frequency.0
 }
 
 fn sort(frequency: HashMap<String, u32>) -> Vec<(String, u32)> {
@@ -70,6 +82,6 @@ fn print_all(frequency: Vec<(String, u32)>) {
 
 
 fn main() {
-  print_all(sort(remove_stop_words(scan(normalize(read_file(parse_input()))))));  
+  print_all(sort(remove_stop_words(scan(normalize(read_files(parse_input()))))));  
 }
 
