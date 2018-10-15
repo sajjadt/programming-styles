@@ -1,3 +1,4 @@
+# Taken from: https://github.com/crista/exercises-in-programming-style
 #!/usr/bin/env python
 import re, sys, operator
 
