@@ -144,7 +144,7 @@ impl WordFrequencyController {
 fn main() {
   let args: Vec<_> = env::args().collect();
   if args.len() != 3 {
-    print!("Usage: cargo run --bin pipeline [input_file] [stop_words_file]\n");
+    print!("Usage: cargo run [input_file] [stop_words_file]\n");
     process::exit(0);
   }
   let mut controller = WordFrequencyController{
