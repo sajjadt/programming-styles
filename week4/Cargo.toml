@@ -1,0 +1,12 @@
+[package]
+name = "week4"
+version = "0.1.0"
+authors = ["Sajjad Taheri <sajjadt@uci.edu>"]
+
+[dependencies]
+regex="1"
+serde_json = "1"
+
+[[bin]]
+name = "letterbox"
+path = "src/letterbox.rs"

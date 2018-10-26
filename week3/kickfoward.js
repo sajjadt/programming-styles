@@ -74,8 +74,8 @@ remove_stop_words = function(frequency, stop_words, next) {
 // Sort and truncate
 sort = function(frequency, next) {
     
-    var items = Object.keys(frequency).map(function(key) {
-      return [key, frequency[key]];
+    var items = Object.entries(frequency).map(function(entry) {
+      return [entry[0], entry[1]];
     });
     
     // Sort the array based on the second element
