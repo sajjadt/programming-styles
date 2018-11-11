@@ -1,15 +1,27 @@
 var fs = require("fs");
+  
 const N = 25;
 
 function* words (input_file_path) {
-  data = fs.readFileSync(input_file_path);
-  data = data.toString();
-  data = data.replace(/\n|\r/g, " ");
-  data = data.toLowerCase();
-  var re = /[a-z][a-z]+/g;
-  while (match = re.exec(data)) {
-    yield match[0]; 
-  }       
+  var line = "";
+  var position = 0;
+  var buffer = Buffer.alloc(2);
+  const fd = fs.openSync(input_file_path, 'r+');
+  while(fs.readSync(fd, buffer, 0, 1, position) > 0) {
+    if (String.fromCharCode(buffer[0]) === '\n') {
+      line = line.replace(/\n|\r/g, " ");
+      line = line.toLowerCase();
+      var re = /[a-z][a-z]+/g;
+      while (match = re.exec(line)) {
+
+        yield match[0];
+      }
+      line = "";
+    } else {
+      line += String.fromCharCode(buffer[0]);
+    }
+    position += 1;
+  }  
 }
 
 function* non_stop_words (input_file_path) {
@@ -18,11 +30,11 @@ function* non_stop_words (input_file_path) {
   data = data.toString();
   data = data.toLowerCase();
   data = data.replace(/\n|\r/g, "");
-  var stop_words = new Set (data.split(","));   
-  const itertor = words(input_file_path);  
+  var stop_words = new Set (data.split(","));
+  const itertor = words(input_file_path); 
   for(i = itertor.next(); !i.done;i = itertor.next()) {
-    word = i.value;
-    if (! stop_words.has(word)) {
+    word = i.value; 
+    if (! stop_words.has(word)) { 
       yield word;
     } 
   }
@@ -31,7 +43,7 @@ function* non_stop_words (input_file_path) {
 function* count_and_sort (input_file_path) {
   var word_freqs = {};
   
-  const itertor = non_stop_words(input_file_path); 
+  const itertor = non_stop_words(input_file_path);
   for(i = itertor.next(); !i.done;i = itertor.next()) {
     word = i.value;
     if (word in word_freqs)
