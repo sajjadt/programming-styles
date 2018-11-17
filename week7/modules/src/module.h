@@ -17,6 +17,8 @@ extern "C" {
 std::vector<std::string> extract_words(const std::string&);
 // Sort and return top 25 of most frequently accessed words
 std::vector<std::pair<std::string, int> > top(const std::vector<std::string>&, int);
+// Print word, frequency pair  
+void print(std::vector<std::pair<std::string, int> >);
 #ifdef  __cplusplus
 }
 

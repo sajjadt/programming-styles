@@ -64,10 +64,10 @@ profile = function(f) {
   }
 }
 
-extract_words = profile(extract_words);
-frequencies = profile(frequencies);
-sort = profile(sort);
-
+profiled_funcs = ["extract_words", "frequencies", "sort"];
+for (var func of profiled_funcs) {
+  global[func] = profile(global[func]);
+}
 
 print_all(sort(frequencies(extract_words(process.argv[2]))));
 
