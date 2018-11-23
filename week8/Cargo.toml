@@ -1,0 +1,18 @@
+[package]
+name = "week8"
+version = "0.1.0"
+authors = ["Sajjad Taheri <sajjadt@uci.edu>"]
+
+[dependencies]
+regex="1"
+actix="0.7"
+futures="0.1"
+tokio="0.1"
+
+[[bin]]
+name = "actors"
+path = "src/actors.rs"
+
+[[bin]]
+name = "lazy_rivers"
+path = "src/lazy_rivers.rs"
