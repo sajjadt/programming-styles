@@ -28,15 +28,22 @@ fn read_file_and_lower(in_file: String) -> String {
 // Regroup
 fn regroup(pairs_list: Vec<Vec<(String, u32)>>) -> HashMap<String, Vec<(String, u32)>> {
   let mut results : HashMap<String, Vec<(String, u32)>> = HashMap::new();
+  
+  results.insert("a-e".to_string(), Vec::new());
+  results.insert("f-j".to_string(), Vec::new());
+  results.insert("k-o".to_string(), Vec::new());
+  results.insert("p-t".to_string(), Vec::new());
+  results.insert("u-z".to_string(), Vec::new());
+  
   for pairs in pairs_list {
     for pair in pairs {
-      if results.contains_key(&pair.0) {
-        results.get_mut(&pair.0).unwrap().push(pair);
-      } else {
-        let mut vect :  Vec<(String, u32)> = Vec::new();
-        let key = pair.clone();
-        vect.push(pair);
-        results.insert(key.0, vect);
+      match pair.0.chars().next().unwrap() {
+        'a' ... 'e' => results.get_mut("a-e").unwrap().push(pair),
+        'f' ... 'j' => results.get_mut("f-j").unwrap().push(pair),
+        'k' ... 'o' => results.get_mut("k-o").unwrap().push(pair),
+        'p' ... 't' => results.get_mut("p-t").unwrap().push(pair),
+        'u' ... 'z' => results.get_mut("u-z").unwrap().push(pair),
+        _ => println!("unexpted character"),
       }
     }
   }
@@ -50,14 +57,15 @@ fn main() {
 
   let args: Vec<_> = env::args().collect();
   if args.len() != 2 {
-    print!("Usage: cargo run --bin dataspaces [input_file]\n");
+    print!("Usage: cargo run --bin map_reduce [input_file]\n");
     process::exit(0);
   }
 
   let mut content : String = read_file_and_lower(args[1].to_string());
   let mut children = vec![];
 
-  // Map (split words)
+  // Map (split words) to chunks of input text
+  // Vec [ (word, 1), (word, 1), ... ]
   for mut lines_iter in &content.lines().into_iter().chunks(200) {
     let mut lines = lines_iter.join("\n");
     let mut freqs : Vec<(String, u32)> = Vec::new();
@@ -76,32 +84,47 @@ fn main() {
           freqs.push((word.as_str().to_string(), 1));
         }
       }
+      println!("Thraed split words finished...");
       freqs
     }));
   }
 
-  // Collect
+  // Reduce
+  // n * Vec<(String, u32)> -> Vec<Vec<(String, u32)>>
   let mut intermediate_results : Vec<Vec<(String, u32)>> = Vec::new();
   for child in children {
-      let result = child.join().unwrap();
-      intermediate_results.push(result);
+    intermediate_results.push(child.join().unwrap());
   }
+
   // Regroup
+  // Vec<Vec<(String, u32)>>) -> HashMap<String, Vec<(String, u32)>>
   let mut regroupped_results = regroup(intermediate_results);
 
   // Map (count words)
-  // HashMap<String, Vec<(String, u32)>> -> 
+  // HashMap<group, Vec<(String, u32)>> -> 
   let mut children2 = vec![];
   for (key, value) in regroupped_results {
-    children2.push(thread::spawn(move || -> (String, u32) {
-      (key, value.len() as u32)
+    children2.push(thread::spawn(move || -> HashMap<String, u32> {
+      println!("Count word thread map");
+      let mut freqs : HashMap<String, u32> = HashMap::new();
+
+      for (word, freq) in &value {
+        if freqs.contains_key(word) {
+          let c = freqs[word];
+          freqs.insert(word.to_string(), c + *freq);
+        } else {
+          freqs.insert(word.to_string(), *freq);
+        }
+      }
+
+      freqs
     }));
   }
 
   let mut calculated : Vec<(String, u32)> = Vec::new();
   for child in children2 {
-      let result = child.join().unwrap();
-      calculated.push(result);
+    let mut result = Vec::from_iter(child.join().unwrap());
+    calculated.append(&mut result);
   }
 
   // Sort and truncate

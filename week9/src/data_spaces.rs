@@ -34,7 +34,7 @@ fn main() {
 
   let args: Vec<_> = env::args().collect();
   if args.len() != 2 {
-    print!("Usage: cargo run --bin dataspaces [input_file]\n");
+    print!("Usage: cargo run --bin data_spaces [input_file]\n");
     process::exit(0);
   }
 
