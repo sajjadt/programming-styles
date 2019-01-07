@@ -42,4 +42,3 @@ for i in range(0, len(words), RECURSION_LIMIT):
     count(words[i:i+RECURSION_LIMIT], stop_words, word_freqs)
 
 wf_print(sorted(word_freqs.iteritems(), key=operator.itemgetter(1), reverse=True)[:25])
-

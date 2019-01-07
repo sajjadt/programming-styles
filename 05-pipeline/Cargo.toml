@@ -1,0 +1,12 @@
+[package]
+name = "week2"
+version = "0.1.0"
+authors = ["Sajjad Taheri <sajjadt@uci.edu>"]
+
+[dependencies]
+regex = "1"
+lazy_static = "1.1.0"
+
+[[bin]]
+name = "pipeline"
+path = "src/pipeline.rs"

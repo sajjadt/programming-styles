@@ -12,9 +12,5 @@ name = "cookbook"
 path = "src/cookbook.rs"
 
 [[bin]]
-name = "pipeline"
-path = "src/pipeline.rs"
-
-[[bin]]
 name = "cookbook-g"
 path = "src/cookbook_globals.rs"
